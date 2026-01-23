@@ -57,7 +57,7 @@ dpth = os.path.join(folder, language)
 """ hyper-parameters """
 N = 16       # batch-size
 T = 0.07     # temperature factor
-epochs = 50
+epochs = 10
 
 """ 
 Use for adding extra token - [PAD], for padding all to same length
