@@ -53,6 +53,32 @@ not-misogyny
 
 The image file name should match the `image_id` value. For example, `125.jpg` should have `image_id` as `125` in the CSV.
 
+## Install Requirements
+
+Install the Python packages with:
+
+```bash
+pip install -r requirements.txt
+```
+
+If you use a GPU, install the PyTorch build that matches your CUDA version from the official PyTorch install instructions, then run the command above.
+
+## Hugging Face Access
+
+The script downloads the text model from Hugging Face. You can run without logging in, but downloads may be slower or rate limited.
+
+To avoid that warning, create a Hugging Face access token and set it before running training:
+
+```bash
+set HF_TOKEN=your_token_here
+```
+
+On PowerShell:
+
+```powershell
+$env:HF_TOKEN="your_token_here"
+```
+
 ## What the Model Uses
 
 - Text encoder: LLaMA-based model
@@ -68,11 +94,15 @@ Malayalam:
 python fuse_md.py --language malayalam
 ```
 
+By default, Malayalam uses the `gated` fusion method.
+
 Tamil:
 
 ```bash
 python fuse_md.py --language tamil
 ```
+
+By default, Tamil uses the `element` fusion method.
 
 Run only one fusion method:
 
@@ -109,6 +139,26 @@ Saved outputs include:
 - `.json` metrics
 - `.txt` classification report
 - `.png` confusion matrix
+
+## Run Inference
+
+Use `infer.py` with a saved checkpoint:
+
+```bash
+python infer.py --checkpoint trained_model/malayalam/fusion/model.pth --language malayalam --split test
+```
+
+You can also choose the output CSV path:
+
+```bash
+python infer.py --checkpoint trained_model/tamil/fusion/model.pth --language tamil --split test --output tamil_predictions.csv
+```
+
+If `--output` is not given, predictions are saved to:
+
+```text
+predictions/<language>/inference/
+```
 
 ## Notes
 

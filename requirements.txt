@@ -1,0 +1,12 @@
+torch
+torchvision
+transformers
+accelerate
+bitsandbytes
+timm
+opencv-python
+pandas
+numpy
+scikit-learn
+matplotlib
+tqdm

@@ -120,7 +120,7 @@ def parse_args() -> Config:
         "--fusion-methods",
         nargs="+",
         choices=["concat", "element", "avgpool", "gated"],
-        default=["concat", "element", "avgpool", "gated"],
+        default=None,
     )
     parser.add_argument("--early-stopping-patience", type=int, default=5)
     parser.add_argument("--no-8bit", action="store_true")
@@ -129,6 +129,10 @@ def parse_args() -> Config:
     parser.add_argument("--num-workers", type=int, default=0)
     parser.add_argument("--oversample-positive-train", type=int, default=3)
     args = parser.parse_args()
+
+    fusion_methods = args.fusion_methods
+    if fusion_methods is None:
+        fusion_methods = ["gated"] if args.language == "malayalam" else ["element"]
 
     return Config(
         data_root=args.data_root,
@@ -143,7 +147,7 @@ def parse_args() -> Config:
         batch_size=args.batch_size,
         epochs=args.epochs,
         learning_rates=tuple(args.learning_rates),
-        fusion_methods=tuple(args.fusion_methods),
+        fusion_methods=tuple(fusion_methods),
         early_stopping_patience=args.early_stopping_patience,
         use_8bit=not args.no_8bit,
         dtype=args.dtype,
@@ -410,7 +414,7 @@ def load_tokenizer_and_llama(config: Config, dtype: torch.dtype) -> Tuple[AutoTo
         config.text_model,
         low_cpu_mem_usage=True,
         quantization_config=quantization_config,
-        torch_dtype=dtype,
+        dtype=dtype,
     )
     llama.resize_token_embeddings(len(tokenizer), mean_resizing=False)
     return tokenizer, llama
