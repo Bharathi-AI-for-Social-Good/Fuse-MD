@@ -10,3 +10,6 @@ numpy
 scikit-learn
 matplotlib
 tqdm
+hydra-core
+omegaconf
+colorlog

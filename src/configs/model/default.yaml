@@ -1,0 +1,7 @@
+text_model: VishnuPJ/MalayaLLM_7B_Base
+image_model: vit_base_patch16_224
+embedding_dim: 128
+fusion_methods:
+  - gated
+use_8bit: false
+dtype: float16

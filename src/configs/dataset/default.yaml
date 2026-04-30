@@ -1,0 +1,13 @@
+data_root: data
+output_root: .
+language: malayalam
+train_split: train
+dev_split: dev
+test_split: test
+inference_split: test
+image_id_col: image_id
+text_col: transcriptions
+label_col: original_labels
+finetuned_model_path: trained_model/malayalam/fusion/fusemd_best.pth
+save_metrics_path: predictions/malayalam/inference/metrics.json
+save_preds_path: predictions/malayalam/inference/preds.csv

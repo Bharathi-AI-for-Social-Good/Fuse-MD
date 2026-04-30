@@ -1,0 +1,18 @@
+max_epochs: 10
+learning_rates:
+  - 1e-5
+batch_size: 16
+max_length: 75
+num_workers: 0
+optimizer_eps: 1e-4
+scheduler_factor: 0.5
+scheduler_patience: 2
+scheduler_threshold: 1e-3
+early_stopping_patience: 5
+oversample_positive_train: 3
+threshold_start: 0.1
+threshold_stop: 0.9
+threshold_step: 0.1
+threshold: null
+seed: 42
+save_confusion_matrix_png: true
