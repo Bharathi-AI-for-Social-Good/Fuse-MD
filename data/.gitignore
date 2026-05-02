@@ -1,0 +1,3 @@
+# Keep the data directory in the repository, but ignore local dataset files.
+*
+!.gitignore
