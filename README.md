@@ -1,15 +1,25 @@
+<div align="center">
+
 # Fuse-MD
+
+**A culturally-aware multimodal framework for misogyny meme detection in low-resource languages**
+
+[![Code License: MIT](https://img.shields.io/badge/Code%20License-MIT-black.svg)](LICENSE)
+[![Dataset License: CC BY-NC-SA 4.0](https://img.shields.io/badge/Dataset%20License-CC%20BY--NC--SA%204.0-blue.svg)](DATA_LICENSE.md)
+[![Paper License: CC BY 4.0](https://img.shields.io/badge/Paper%20License-CC%20BY%204.0-green.svg)](https://creativecommons.org/licenses/by/4.0/)
+
+</div>
 
 Fuse-MD is a culturally-aware multimodal framework for misogyny meme detection
 in low-resource languages, with experiments focused on Tamil and Malayalam.
 This repository contains the source code for training, evaluation, and
 checkpoint-based inference.
 
-The work is based on the paper "Fuse-MD: A culturally-aware multimodal model
-for detecting misogyny memes" published in the Natural Language Processing
-Journal.
+> Based on the paper: "Fuse-MD: A culturally-aware multimodal model for
+> detecting misogyny memes" published in the *Natural Language Processing
+> Journal*.
 
-## Introduction
+## Overview
 
 Fuse-MD combines:
 
@@ -21,15 +31,27 @@ The current implementation supports multiple fusion strategies in code,
 including `concat`, `element`, `avgpool`, and `gated`. Training and inference
 are managed with Hydra configuration files under `src/configs/`.
 
-## Repository Overview
+## ✨ At a Glance
+
+| Component | Details |
+|---|---|
+| Task | Multimodal misogyny meme detection |
+| Languages | Tamil, Malayalam |
+| Text backbone | `VishnuPJ/MalayaLLM_7B_Base` by default |
+| Image backbone | `vit_base_patch16_224` |
+| Fusion methods | `concat`, `element`, `avgpool`, `gated` |
+| Config system | Hydra |
+| Code license | MIT |
+| Dataset license | CC BY-NC-SA 4.0 |
+
+## 📁 Repository Overview
 
 - `src/` contains the main training, inference, dataset, model, and Hydra config code.
 - `api/` contains a work-in-progress Flask API scaffold.
 - `notebooks/` contains exploratory and unimodal experiment notebooks.
 - `data/` is a local placeholder directory for your dataset copy and is not tracked.
 
-
-## Quick Start
+## ⚡ Quick Start
 
 Install dependencies:
 
@@ -53,9 +75,9 @@ By default, the configuration expects:
 - `data/malayalam/dev/dev.csv`
 - `data/malayalam/test/test.csv`
 
-with matching image files inside each split directory.
+Matching image files should be stored inside each split directory.
 
-## Configuration
+## ⚙️ Configuration
 
 The main Hydra configuration lives in:
 
@@ -73,7 +95,7 @@ Default settings currently include:
 
 You can override any setting from the command line through Hydra.
 
-## Training
+## 🏋️ Training
 
 Run training from inside `src`:
 
@@ -103,7 +125,7 @@ trained_model/
 predictions/
 ```
 
-## Inference
+## 🔎 Inference
 
 Run checkpoint-based inference from inside `src`:
 
@@ -122,7 +144,7 @@ python inference.py dataset.language=tamil dataset.inference_split=test
 Inference uses the checkpoint path defined in
 `src/configs/dataset/default.yaml` unless you override it.
 
-## Project Structure
+## 🧭 Project Structure
 
 ```text
 Fuse-MD/
@@ -143,7 +165,7 @@ Fuse-MD/
 `-- requirements.txt
 ```
 
-## Dataset
+## 🗂️ Dataset
 
 This repository does not include the dataset itself.
 
@@ -152,15 +174,14 @@ Attribution-NonCommercial-ShareAlike 4.0 International License
 (`CC BY-NC-SA 4.0`) for non-commercial academic research use. See
 [DATA_LICENSE.md](DATA_LICENSE.md).
 
-## License
+## 📜 License
 
 Unless otherwise noted, the source code in this repository is licensed under
 the MIT License. See [LICENSE](LICENSE).
 
-The associated research paper was published open access under
-`CC BY 4.0`.
+The associated research paper was published open access under `CC BY 4.0`.
 
-## Citation
+## 📖 Citation
 
 If you use this repository, please cite the Fuse-MD paper:
 
