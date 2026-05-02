@@ -1,46 +1,177 @@
-## Fuse-MD Project
+# Fuse-MD
 
-This project uses the Fuse-MD workflow directly from the repository root.
+Fuse-MD is a culturally-aware multimodal framework for misogyny meme detection
+in low-resource languages, with experiments focused on Tamil and Malayalam.
+This repository contains the source code for training, evaluation, and
+checkpoint-based inference.
+
+The work is based on the paper "Fuse-MD: A culturally-aware multimodal model
+for detecting misogyny memes" published in the Natural Language Processing
+Journal.
+
+## Introduction
+
+Fuse-MD combines:
+
+1. A text encoder based on a language model checkpoint.
+2. An image encoder based on a pretrained vision backbone from `timm`.
+3. A fusion head for multimodal classification.
+
+The current implementation supports multiple fusion strategies in code,
+including `concat`, `element`, `avgpool`, and `gated`. Training and inference
+are managed with Hydra configuration files under `src/configs/`.
+
+## Repository Overview
+
+- `src/` contains the main training, inference, dataset, model, and Hydra config code.
+- `api/` contains a work-in-progress Flask API scaffold.
+- `notebooks/` contains exploratory and unimodal experiment notebooks.
+- `data/` is a local placeholder directory for your dataset copy and is not tracked.
+
+
+## Quick Start
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+The dataset is not included in this repository. Place your local dataset under:
+
+```text
+data/
+  <language>/
+    train/
+    dev/
+    test/
+```
+
+By default, the configuration expects:
+
+- `data/malayalam/train/train.csv`
+- `data/malayalam/dev/dev.csv`
+- `data/malayalam/test/test.csv`
+
+with matching image files inside each split directory.
+
+## Configuration
+
+The main Hydra configuration lives in:
+
+- `src/configs/config.yaml`
+- `src/configs/dataset/default.yaml`
+- `src/configs/model/default.yaml`
+- `src/configs/training/default.yaml`
+
+Default settings currently include:
+
+- language: `malayalam`
+- text model: `VishnuPJ/MalayaLLM_7B_Base`
+- image model: `vit_base_patch16_224`
+- fusion method: `gated`
+
+You can override any setting from the command line through Hydra.
+
+## Training
+
+Run training from inside `src`:
+
+```bash
+cd src
+python main.py
+```
+
+Example with overrides:
+
+```bash
+cd src
+python main.py dataset.language=tamil model.fusion_methods=[element] training.learning_rates=[1e-5]
+```
+
+Training will:
+
+1. Load train, dev, and test splits.
+2. Tune the classification threshold on the dev set.
+3. Evaluate on the test split.
+4. Save checkpoints, predictions, and metrics.
+
+Outputs are written under:
+
+```text
+trained_model/
+predictions/
+```
+
+## Inference
+
+Run checkpoint-based inference from inside `src`:
+
+```bash
+cd src
+python inference.py
+```
+
+Example with overrides:
+
+```bash
+cd src
+python inference.py dataset.language=tamil dataset.inference_split=test
+```
+
+Inference uses the checkpoint path defined in
+`src/configs/dataset/default.yaml` unless you override it.
+
+## Project Structure
+
+```text
+Fuse-MD/
+|-- api/
+|-- data/
+|   |-- .gitignore
+|-- notebooks/
+|-- src/
+|   |-- configs/
+|   |-- models/
+|   |-- dataset.py
+|   |-- inference.py
+|   |-- main.py
+|   `-- train.py
+|-- DATA_LICENSE.md
+|-- LICENSE
+|-- README.md
+`-- requirements.txt
+```
+
+## Dataset
+
+This repository does not include the dataset itself.
+
+The dataset used with this project is released under the Creative Commons
+Attribution-NonCommercial-ShareAlike 4.0 International License
+(`CC BY-NC-SA 4.0`) for non-commercial academic research use. See
+[DATA_LICENSE.md](DATA_LICENSE.md).
 
 ## License
 
 Unless otherwise noted, the source code in this repository is licensed under
 the MIT License. See [LICENSE](LICENSE).
 
-The associated research paper, "Fuse-MD: A culturally-aware multimodal model
-for detecting misogyny memes," was published open access under the
-Creative Commons Attribution 4.0 International License (CC BY 4.0). That
-article license applies to the paper and any paper content reused from it,
-not automatically to all repository contents.
+The associated research paper was published open access under
+`CC BY 4.0`.
 
-The dataset used with this project is released under the Creative Commons
-Attribution-NonCommercial-ShareAlike 4.0 International License
-(CC BY-NC-SA 4.0) and may only be used for non-commercial, academic research
-purposes. The repository does not include the dataset itself; the `data/`
-directory is intended as a local placeholder for your own copy. See
-[DATA_LICENSE.md](DATA_LICENSE.md) for repository guidance.
+## Citation
 
-### Entry points
+If you use this repository, please cite the Fuse-MD paper:
 
-- `src/main.py` handles training, validation, threshold tuning, and test evaluation.
-- `src/inference.py` loads a saved checkpoint and writes predictions and metrics.
-
-### Configuration
-
-Hydra configs live under `src/configs/`:
-
-- `dataset/default.yaml`
-- `model/default.yaml`
-- `training/default.yaml`
-
-The default dataset root is `data`, so training and inference read from your
-local `data/` directory.
-
-### Typical usage
-
-From inside `src`:
-
-```bash
-python main.py
-python inference.py
+```bibtex
+@article{ponnusamy2026fusemd,
+  title={Fuse-MD: A culturally-aware multimodal model for detecting misogyny memes},
+  author={Ponnusamy, Rahul and Rajiakodi, Saranya and Sivagnanam, Bhuvaneswari and Kizhakkeparambil, Anshid and Sharma, Dhruv and Buitelaar, Paul and Chakravarthi, Bharathi Raja},
+  journal={Natural Language Processing Journal},
+  volume={14},
+  pages={100197},
+  year={2026},
+  doi={10.1016/j.nlp.2026.100197}
+}
 ```
