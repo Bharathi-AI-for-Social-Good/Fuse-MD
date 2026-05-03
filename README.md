@@ -147,7 +147,30 @@ Inference uses the checkpoint path defined in
 
 ## 🌐 API
 
-Run the FastAPI service from the repository root:
+The simplest local inference flow is:
+
+1. Activate your virtual environment.
+2. Set `CHECKPOINT_PATH` once in `api/local_config.py`.
+3. Start the API:
+
+```bash
+python api/run_api.py
+```
+
+4. In a second terminal, send a prediction request:
+
+```bash
+python api/predict.py --image data/malayalam/dev/sample/148.jpg --text "sample meme transcription"
+```
+
+This starts the existing FastAPI app with your local defaults and avoids
+manually setting environment variables or writing `curl` commands.
+
+Note: the API still needs access to the underlying Hugging Face text model
+files. The first startup can take a while, and if the model is not cached
+locally you will need internet access to download it.
+
+Advanced/manual startup is still available from the repository root:
 
 ```bash
 uvicorn api.api.app:app --host 0.0.0.0 --port 8000 --reload
