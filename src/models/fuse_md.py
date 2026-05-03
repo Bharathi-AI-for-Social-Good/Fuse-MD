@@ -190,7 +190,13 @@ def get_trainable_checkpoint(model: FuseMD) -> Dict[str, object]:
 
 
 def load_trainable_checkpoint(model: FuseMD, checkpoint: Dict[str, object]) -> None:
-    model.text_encoder.projection.load_state_dict(checkpoint["text_projection_state_dict"])
+    text_projection_state = checkpoint.get("text_projection_state_dict")
+    if text_projection_state is None:
+        text_projection_state = checkpoint.get("text_clf_head_state_dict")
+    if text_projection_state is None:
+        raise KeyError("Checkpoint is missing both 'text_projection_state_dict' and 'text_clf_head_state_dict'.")
+
+    model.text_encoder.projection.load_state_dict(text_projection_state)
 
     vit_current = model.image_encoder.state_dict()
     vit_current.update(checkpoint["vit_head_state_dict"])

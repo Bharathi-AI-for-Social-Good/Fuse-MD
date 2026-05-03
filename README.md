@@ -37,7 +37,7 @@ are managed with Hydra configuration files under `src/configs/`.
 |---|---|
 | Task | Multimodal misogyny meme detection |
 | Languages | Tamil, Malayalam |
-| Text backbone | `VishnuPJ/MalayaLLM_7B_Base` by default |
+| Text backbone | `abhinand/tamil-llama-7b-base-v0.1` by default, for Malayalam support use `VishnuPJ/MalayaLLM_7B_Base` |
 | Image backbone | `vit_base_patch16_224` |
 | Fusion methods | `concat`, `element`, `avgpool`, `gated` |
 | Config system | Hydra |
@@ -90,7 +90,7 @@ The main Hydra configuration lives in:
 Default settings currently include:
 
 - language: `malayalam`
-- text model: `VishnuPJ/MalayaLLM_7B_Base`
+- text model: `VishnuPJ/MalayaLLM_7B_Base` or `abhinand/tamil-llama-7b-base-v0.1`
 - image model: `vit_base_patch16_224`
 - fusion method: `gated`
 

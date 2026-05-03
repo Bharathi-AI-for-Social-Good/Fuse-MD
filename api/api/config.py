@@ -15,6 +15,26 @@ def resolve_repo_path(raw_path: str) -> Path:
     return (repo_root() / path).resolve()
 
 
+def auto_checkpoint_path() -> Path:
+    explicit = os.getenv("FUSEMD_CHECKPOINT")
+    if explicit:
+        return resolve_repo_path(explicit)
+
+    preferred = resolve_repo_path("trained_model/malayalam/fusion/fusemd_best.pth")
+    if preferred.exists():
+        return preferred
+
+    candidates = sorted(
+        repo_root().glob("trained_model/*/fusion/*.pth"),
+        key=lambda path: path.stat().st_mtime,
+        reverse=True,
+    )
+    if candidates:
+        return candidates[0]
+
+    return preferred
+
+
 def env_optional_float(name: str) -> Optional[float]:
     raw_value = os.getenv(name)
     if raw_value is None or raw_value == "":
@@ -48,9 +68,7 @@ class Settings:
 
 
 settings = Settings(
-    checkpoint_path=resolve_repo_path(
-        os.getenv("FUSEMD_CHECKPOINT", "trained_model/malayalam/fusion/fusemd_best.pth")
-    ),
+    checkpoint_path=auto_checkpoint_path(),
     host=os.getenv("FUSEMD_HOST", "0.0.0.0"),
     port=int(os.getenv("FUSEMD_PORT", "8000")),
     default_threshold=env_optional_float("FUSEMD_THRESHOLD"),

@@ -56,9 +56,9 @@ class FuseMDService:
 
             checkpoint = torch.load(checkpoint_path, map_location="cpu")
             checkpoint_cfg = checkpoint.get("config", {})
-            checkpoint_dataset_cfg = checkpoint_cfg.get("dataset", {})
-            checkpoint_model_cfg = checkpoint_cfg.get("model", {})
-            checkpoint_training_cfg = checkpoint_cfg.get("training", {})
+            checkpoint_dataset_cfg = self.extract_dataset_config(checkpoint_cfg)
+            checkpoint_model_cfg = self.extract_model_config(checkpoint_cfg)
+            checkpoint_training_cfg = self.extract_training_config(checkpoint_cfg)
 
             text_model_name = str(
                 checkpoint_model_cfg.get("text_model", "VishnuPJ/MalayaLLM_7B_Base")
@@ -116,6 +116,24 @@ class FuseMDService:
             }
             self.load_error = str(exc)
             logger.exception("Failed to load Fuse-MD API model")
+
+    @staticmethod
+    def extract_dataset_config(checkpoint_cfg: Dict[str, Any]) -> Dict[str, Any]:
+        if isinstance(checkpoint_cfg.get("dataset"), dict):
+            return checkpoint_cfg["dataset"]
+        return checkpoint_cfg
+
+    @staticmethod
+    def extract_model_config(checkpoint_cfg: Dict[str, Any]) -> Dict[str, Any]:
+        if isinstance(checkpoint_cfg.get("model"), dict):
+            return checkpoint_cfg["model"]
+        return checkpoint_cfg
+
+    @staticmethod
+    def extract_training_config(checkpoint_cfg: Dict[str, Any]) -> Dict[str, Any]:
+        if isinstance(checkpoint_cfg.get("training"), dict):
+            return checkpoint_cfg["training"]
+        return checkpoint_cfg
 
     def health(self) -> Dict[str, Any]:
         return {
