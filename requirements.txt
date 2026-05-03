@@ -13,3 +13,6 @@ tqdm
 hydra-core
 omegaconf
 colorlog
+fastapi
+uvicorn
+python-multipart

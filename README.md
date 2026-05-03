@@ -12,14 +12,14 @@
 
 Fuse-MD is a culturally-aware multimodal framework for misogyny meme detection
 in low-resource languages, with experiments focused on Tamil and Malayalam.
-This repository contains the source code for training, evaluation, and
-checkpoint-based inference.
+This repository contains the source code for training, evaluation,
+checkpoint-based inference, and API serving.
 
 > Based on the paper: "Fuse-MD: A culturally-aware multimodal model for
 > detecting misogyny memes" published in the *Natural Language Processing
 > Journal*.
 
-## Overview
+## 🧠 Overview
 
 Fuse-MD combines:
 
@@ -41,13 +41,14 @@ are managed with Hydra configuration files under `src/configs/`.
 | Image backbone | `vit_base_patch16_224` |
 | Fusion methods | `concat`, `element`, `avgpool`, `gated` |
 | Config system | Hydra |
+| API framework | FastAPI |
 | Code license | MIT |
 | Dataset license | CC BY-NC-SA 4.0 |
 
 ## 📁 Repository Overview
 
 - `src/` contains the main training, inference, dataset, model, and Hydra config code.
-- `api/` contains a work-in-progress Flask API scaffold.
+- `api/` contains the FastAPI inference service for serving Fuse-MD predictions.
 - `notebooks/` contains exploratory and unimodal experiment notebooks.
 - `data/` is a local placeholder directory for your dataset copy and is not tracked.
 
@@ -144,11 +145,30 @@ python inference.py dataset.language=tamil dataset.inference_split=test
 Inference uses the checkpoint path defined in
 `src/configs/dataset/default.yaml` unless you override it.
 
+## 🌐 API
+
+Run the FastAPI service from the repository root:
+
+```bash
+uvicorn api.api.app:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Once running, you can use:
+
+- `/docs` for the interactive Swagger UI
+- `/health` for service health
+- `/model-info` for loaded checkpoint metadata
+- `/predict` for multimodal inference
+
+See [api/README.md](api/README.md) for API-specific usage details.
+
 ## 🧭 Project Structure
 
 ```text
 Fuse-MD/
 |-- api/
+|   |-- README.md
+|   `-- api/
 |-- data/
 |   |-- .gitignore
 |-- notebooks/

@@ -1,72 +1,65 @@
-import config
-import torch
-import flask
-import time
-from flask import Flask
-from flask import request
-import torch.nn as nn
-from transformers import AutoTokenizer
-from model import Transformer
+from contextlib import asynccontextmanager
 
-app = Flask(__name__)
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 
-model = None
-device = "cuda" if torch.cuda.is_available() else "cpu"
-prediction_dict = dict()
+from .config import settings
+from .schemas import HealthResponse, ModelInfoResponse, PredictionResponse
+from .service import FuseMDService
 
 
-def sentence_prediction(sentence):
-    tokenizer = AutoTokenizer.from_pretrained(config.tokenizer_name)
-    max_len = config.max_len
-    review = str(sentence)
-    review = " ".join(review.split())
-
-    inputs = tokenizer.encode_plus(
-        review, None, add_special_tokens=True, max_length=max_len
-    )
-
-    ids = inputs["input_ids"]
-    mask = inputs["attention_mask"]
-    token_type_ids = inputs["token_type_ids"]
-
-    padding_length = max_len - len(ids)
-    ids = ids + ([0] * padding_length)
-    mask = mask + ([0] * padding_length)
-    token_type_ids = token_type_ids + ([0] * padding_length)
-
-    ids = torch.tensor(ids, dtype=torch.long).unsqueeze(0)
-    mask = torch.tensor(mask, dtype=torch.long).unsqueeze(0)
-    token_type_ids = torch.tensor(token_type_ids, dtype=torch.long).unsqueeze(0)
-
-    ids = ids.to(device, dtype=torch.long)
-    token_type_ids = token_type_ids.to(device, dtype=torch.long)
-    mask = mask.to(device, dtype=torch.long)
-
-    outputs = model(ids=ids, mask=mask, token_type_ids=token_type_ids)
-
-    outputs = torch.sigmoid(outputs).cpu().detach().numpy()
-    return outputs[0][0]
+service = FuseMDService(settings)
 
 
-@app.route("/predict")
-def predict():
-    sentence = request.args.get("sentence")
-    start_time = time.time()
-    positive_prediction = sentence_prediction(sentence)
-    negative_prediction = 1 - positive_prediction
-    response = {}
-    response["response"] = {
-        "positive": str(positive_prediction),
-        "negative": str(negative_prediction),
-        "sentence": str(sentence),
-        "time_taken": str(time.time() - start_time),
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    service.load()
+    yield
+
+
+app = FastAPI(
+    title="Fuse-MD API",
+    version="1.0.0",
+    description="FastAPI service for checkpoint-based Fuse-MD multimodal inference.",
+    lifespan=lifespan,
+)
+
+
+@app.get("/", tags=["meta"])
+async def root() -> dict[str, str]:
+    return {
+        "message": "Fuse-MD FastAPI service is running.",
+        "docs": "/docs",
+        "health": "/health",
+        "model_info": "/model-info",
     }
-    return flask.jsonify(response)
 
 
-if __name__ == "__main__":
-    model = Transformer()
-    model.load_state_dict(torch.load(config.path))
-    model.to(device)
-    model.eval()
-    app.run(host="0.0.0.0", port="9999")
+@app.get("/health", response_model=HealthResponse, tags=["meta"])
+async def health() -> HealthResponse:
+    return HealthResponse(**service.health())
+
+
+@app.get("/model-info", response_model=ModelInfoResponse, tags=["meta"])
+async def model_info() -> ModelInfoResponse:
+    return ModelInfoResponse(**service.info())
+
+
+@app.post("/predict", response_model=PredictionResponse, tags=["inference"])
+async def predict(
+    text: str = Form(..., description="Meme transcription or OCR text."),
+    image: UploadFile = File(..., description="Uploaded meme image."),
+    threshold: float | None = Form(default=None, description="Optional decision threshold override."),
+) -> PredictionResponse:
+    try:
+        image_bytes = await image.read()
+        result = service.predict(
+            text=text,
+            image_bytes=image_bytes,
+            image_filename=image.filename,
+            threshold=threshold,
+        )
+        return PredictionResponse(**result)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
