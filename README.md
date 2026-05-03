@@ -150,14 +150,20 @@ Inference uses the checkpoint path defined in
 The simplest local inference flow is:
 
 1. Activate your virtual environment.
-2. Set `CHECKPOINT_PATH` once in `api/local_config.py`.
-3. Start the API:
+2. Download the text backbone once into `local_models/`:
+
+```bash
+python api/setup_local_model.py --model VishnuPJ/MalayaLLM_7B_Base
+```
+
+3. Set `CHECKPOINT_PATH` once in `api/local_config.py`.
+4. Start the API:
 
 ```bash
 python api/run_api.py
 ```
 
-4. In a second terminal, send a prediction request:
+5. In a second terminal, send a prediction request:
 
 ```bash
 python api/predict.py --image data/malayalam/dev/sample/148.jpg --text "sample meme transcription"
@@ -166,9 +172,11 @@ python api/predict.py --image data/malayalam/dev/sample/148.jpg --text "sample m
 This starts the existing FastAPI app with your local defaults and avoids
 manually setting environment variables or writing `curl` commands.
 
-Note: the API still needs access to the underlying Hugging Face text model
-files. The first startup can take a while, and if the model is not cached
-locally you will need internet access to download it.
+The setup command needs internet only the first time. After that, API startup
+and CLI inference load the text model from `local_models/` and do not try to
+download it again. If you use a Tamil checkpoint, run
+`python api/setup_local_model.py --model abhinand/tamil-llama-7b-base-v0.1`
+once as well.
 
 Advanced/manual startup is still available from the repository root:
 

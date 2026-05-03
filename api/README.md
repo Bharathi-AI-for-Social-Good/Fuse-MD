@@ -20,14 +20,20 @@ The API loads a saved Fuse-MD checkpoint and exposes HTTP endpoints for:
 ## Easy local inference
 
 1. Activate your virtual environment.
-2. Open `api/local_config.py` and set `CHECKPOINT_PATH` to your trained `.pth` file.
-3. Start the API from the repository root:
+2. Download the text backbone once:
+
+```bash
+python api/setup_local_model.py --model VishnuPJ/MalayaLLM_7B_Base
+```
+
+3. Open `api/local_config.py` and set `CHECKPOINT_PATH` to your trained `.pth` file.
+4. Start the API from the repository root:
 
 ```bash
 python api/run_api.py
 ```
 
-4. In a second terminal, send a prediction request:
+5. In a second terminal, send a prediction request:
 
 ```bash
 python api/predict.py --image data/malayalam/dev/sample/148.jpg --text "sample meme transcription"
@@ -36,15 +42,18 @@ python api/predict.py --image data/malayalam/dev/sample/148.jpg --text "sample m
 The helper scripts use the values in `api/local_config.py` by default, so you
 only need to set the checkpoint path once for the common local workflow.
 
-Note: the API still needs access to the underlying Hugging Face text model
-files. The first startup can take a while, and if the model is not cached
-locally you will need internet access to download it.
+The setup command requires internet only the first time. After that, runtime
+loads the text backbone from `local_models/` in offline mode. If you use a
+Tamil checkpoint, run
+`python api/setup_local_model.py --model abhinand/tamil-llama-7b-base-v0.1`
+once too.
 
 ## Local config defaults
 
 `api/local_config.py` includes:
 
 - `CHECKPOINT_PATH`
+- `LOCAL_MODEL_ROOT`
 - `HOST`
 - `PORT`
 - `DEVICE`
@@ -55,6 +64,12 @@ You can also override the startup settings directly from the terminal:
 
 ```bash
 python api/run_api.py --checkpoint trained_model/tamil/fusion/your_checkpoint.pth --device cpu
+```
+
+The model setup command also supports checkpoint-based inference of the model id:
+
+```bash
+python api/setup_local_model.py --checkpoint trained_model/malayalam/fusion/your_checkpoint.pth
 ```
 
 ## Run the API manually
@@ -74,6 +89,7 @@ uvicorn api.api.app:app --host 0.0.0.0 --port 8000 --reload
 - `FUSEMD_MAX_LENGTH`
 - `FUSEMD_USE_8BIT`
 - `FUSEMD_DEVICE`
+- `FUSEMD_LOCAL_MODEL_ROOT`
 
 ## Example request
 
@@ -93,5 +109,5 @@ curl -X POST "http://127.0.0.1:8000/predict" \
 
 - The API uses the saved checkpoint metadata to rebuild the model.
 - The repository does not include the dataset.
-- The text backbone must be cached locally or downloadable from Hugging Face at startup.
+- The text backbone must be downloaded once into `local_models/` before offline runtime.
 - For single-image API inference, uploaded images are normalized per image at runtime.

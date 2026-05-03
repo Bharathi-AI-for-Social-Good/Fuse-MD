@@ -209,3 +209,7 @@ __marimo__/
 # local dataset files
 data/*
 !data/.gitignore
+
+# local text backbone cache
+local_models/*
+!local_models/.gitignore

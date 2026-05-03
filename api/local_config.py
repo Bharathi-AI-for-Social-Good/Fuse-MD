@@ -5,9 +5,10 @@ from typing import Optional
 
 # Update this once to point at the checkpoint you want the easy-mode API to use.
 CHECKPOINT_PATH = (
-    "trained_model/malayalam/fusion/"
-    "custom_malayalam_llamavit_fusion_gated_lr1e-05_epoch7_bs16_20260426_002623.pth"
+    "trained_model/tamil/fusion/"
+    "custom_tamil_llamavit_fusion_element_lr1e-05_epoch4_bs16_20260425_231136.pth"
 )
+LOCAL_MODEL_ROOT = "local_models"
 HOST = "127.0.0.1"
 PORT = 8000
 DEVICE = "auto"
@@ -18,6 +19,7 @@ MAX_LENGTH = None
 @dataclass(frozen=True)
 class LocalAPIConfig:
     checkpoint_path: Path
+    local_model_root: Path
     host: str
     port: int
     device: str
@@ -39,6 +41,7 @@ def resolve_repo_path(raw_path: str) -> Path:
 def load_local_api_config() -> LocalAPIConfig:
     return LocalAPIConfig(
         checkpoint_path=resolve_repo_path(CHECKPOINT_PATH),
+        local_model_root=resolve_repo_path(LOCAL_MODEL_ROOT),
         host=str(HOST),
         port=int(PORT),
         device=str(DEVICE).strip().lower(),

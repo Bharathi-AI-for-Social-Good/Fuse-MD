@@ -36,21 +36,23 @@ def parse_args() -> argparse.Namespace:
 
 def build_effective_config(
     args: argparse.Namespace,
-) -> tuple[Path, str, int, str, Optional[str], Optional[str]]:
+) -> tuple[Path, Path, str, int, str, Optional[str], Optional[str]]:
     config = load_local_api_config()
     checkpoint_path = (
         resolve_repo_path(args.checkpoint) if args.checkpoint else config.checkpoint_path
     )
+    local_model_root = config.local_model_root
     host = args.host or config.host
     port = args.port or config.port
     device = (args.device or config.device).strip().lower()
     threshold = None if config.threshold is None else str(config.threshold)
     max_length = None if config.max_length is None else str(config.max_length)
-    return checkpoint_path, host, port, device, threshold, max_length
+    return checkpoint_path, local_model_root, host, port, device, threshold, max_length
 
 
 def configure_environment(
     checkpoint_path: Path,
+    local_model_root: Path,
     host: str,
     port: int,
     device: str,
@@ -58,6 +60,7 @@ def configure_environment(
     max_length: Optional[str],
 ) -> None:
     os.environ["FUSEMD_CHECKPOINT"] = str(checkpoint_path)
+    os.environ["FUSEMD_LOCAL_MODEL_ROOT"] = str(local_model_root)
     os.environ["FUSEMD_HOST"] = host
     os.environ["FUSEMD_PORT"] = str(port)
     os.environ["FUSEMD_DEVICE"] = device
@@ -75,7 +78,7 @@ def configure_environment(
 
 def main() -> int:
     args = parse_args()
-    checkpoint_path, host, port, device, threshold, max_length = build_effective_config(args)
+    checkpoint_path, local_model_root, host, port, device, threshold, max_length = build_effective_config(args)
 
     if not checkpoint_path.exists():
         print("Fuse-MD API could not start.")
@@ -83,10 +86,11 @@ def main() -> int:
         print("Update CHECKPOINT_PATH in api/local_config.py or pass --checkpoint.")
         return 1
 
-    configure_environment(checkpoint_path, host, port, device, threshold, max_length)
+    configure_environment(checkpoint_path, local_model_root, host, port, device, threshold, max_length)
     base_url = f"http://{host}:{port}"
     print("Starting Fuse-MD API")
     print(f"Checkpoint: {checkpoint_path}")
+    print(f"Local model root: {local_model_root}")
     print(f"Device: {device}")
     print(f"URL: {base_url}")
     print(f"Docs: {base_url}/docs")

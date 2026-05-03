@@ -5,6 +5,8 @@ import torch
 from torch import nn
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
+from .local_store import runtime_text_model_path
+
 
 def resolve_dtype(dtype_name: str) -> torch.dtype:
     if dtype_name == "float16":
@@ -131,7 +133,8 @@ def load_tokenizer_and_llama(
     dtype: torch.dtype,
     device: torch.device,
 ) -> Tuple[AutoTokenizer, AutoModelForCausalLM]:
-    tokenizer = AutoTokenizer.from_pretrained(text_model_name)
+    resolved_model_path = runtime_text_model_path(text_model_name)
+    tokenizer = AutoTokenizer.from_pretrained(resolved_model_path, local_files_only=True)
     if tokenizer.pad_token is None:
         if tokenizer.eos_token is not None:
             tokenizer.pad_token = tokenizer.eos_token
@@ -144,8 +147,9 @@ def load_tokenizer_and_llama(
 
     model_dtype = dtype if device.type == "cuda" else torch.float32
     llama = AutoModelForCausalLM.from_pretrained(
-        text_model_name,
+        resolved_model_path,
         low_cpu_mem_usage=True,
+        local_files_only=True,
         quantization_config=quantization_config,
         torch_dtype=model_dtype,
     )
