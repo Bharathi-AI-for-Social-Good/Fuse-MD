@@ -1,0 +1,11 @@
+spaces
+gradio
+huggingface_hub
+torch
+torchvision
+transformers
+accelerate
+bitsandbytes
+timm
+numpy
+opencv-python-headless

@@ -16,3 +16,5 @@ colorlog
 fastapi
 uvicorn
 python-multipart
+gradio
+requests
